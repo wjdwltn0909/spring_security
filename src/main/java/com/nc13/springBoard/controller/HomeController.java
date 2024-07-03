@@ -26,6 +26,7 @@ public class HomeController {
         // 특정 페이지를 실행시키는 메소드는
         // 해당 페이지의 폴더명+파일 이름 을
         // 리턴하게 된다.
+        System.out.println("home");
         return "index";
     }
 }

@@ -22,12 +22,22 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 // URL 별 권한 설정
                 .authorizeHttpRequests((authorize) -> authorize
+                        //WEB-INF 폴더 안의 Views 안의 모든 JSP 파일은 누구든 접근 가능
+                        .requestMatchers("/WEB-INF/**").permitAll()
+                        
+                        // images폴더와 해당 폴더 안의 모든 파일은 누구든 접근 가능
+                        .requestMatchers("/images/**").permitAll()
+                        
                         // localhost:8080/user/... 이거나 localhost:8080/ 은 누구든 접근 가능
-                        .requestMatchers("/user/*").permitAll()
-                        // /board/..../...,  /reply/.. /...은 로그인한 사용자만 접근 가능
+                        .requestMatchers("/", "/user/*").permitAll()
+                        
+                        // /board/write에는 ROLE_ADMIN권한을 가진 사용자만 접근 가능
+                        .requestMatchers("/board/write").hasAnyAuthority("ROLE_ADMIN")
+
+                        // 위 경우가 아닌 모든 URL은 로그인한 사용자만 접근 가능
                         .anyRequest().authenticated()
 
-        )
+                )
                 // 커스텀 폼 로그인 설정;
                 .formLogin((formLogIn) -> formLogIn
                         // 로그인에서 사용할 페이지 설정
@@ -41,7 +51,7 @@ public class SecurityConfig {
                         // 로그인 처리 URL
                         .loginProcessingUrl("/user/auth"))
 
-                // 내가 만든 userAuth Service등록
+                // "내가 만든" userAuth Service등록
                 .userDetailsService(userAuthService);
 
 

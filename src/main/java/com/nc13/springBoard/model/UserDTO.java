@@ -15,17 +15,14 @@ public class UserDTO implements UserDetails {
     private String password;
     private String nickname;
     private String role;
+
     private List<GrantedAuthority> authorities;
 
     @Override
     public List<GrantedAuthority> getAuthorities() {
+        authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(role));
         return authorities;
     }
 
-    public void setAuthorities(String authority) {
-        if (this.authorities == null) {
-            this.authorities = new ArrayList<>();
-        }
-        this.authorities.add(new SimpleGrantedAuthority(authority));
-    }
 }

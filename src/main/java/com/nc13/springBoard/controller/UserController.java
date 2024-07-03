@@ -5,6 +5,7 @@ import com.nc13.springBoard.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +19,8 @@ public class UserController {
     // 실제 SQL 통신을 담당할 Service 객체
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private BCryptPasswordEncoder encoder;
     // 사용자가 로그인을 할 시 실행할
     // auth 메소드
     @PostMapping("auth")
@@ -47,6 +49,7 @@ public class UserController {
     @PostMapping("register")
     public String register(UserDTO userDTO, RedirectAttributes redirectAttributes) {
         if (userService.validateUsername(userDTO.getUsername())) {
+            userDTO.setPassword(encoder.encode(userDTO.getPassword()));
             userService.register(userDTO);
         } else {
             // 회원 가입 실패 메시지 전송

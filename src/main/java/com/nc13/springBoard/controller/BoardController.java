@@ -21,6 +21,7 @@ import java.net.http.HttpRequest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,14 +41,8 @@ public class BoardController {
     }
 
     @GetMapping("showAll/{pageNo}")
-    public String showAll(HttpSession session, Model model, @PathVariable int pageNo, Authentication authentication) {
-        // 해당 부분은 이제 필요없어짐
-//        UserDTO logIn = (UserDTO) session.getAttribute("logIn");
-//        if (logIn == null) {
-//            return "redirect:/";
-//        }
+    public String showAll(Model model, @PathVariable int pageNo, Authentication authentication) {
 
-        System.out.println("logIn: " + session.getAttribute("logIn"));
         System.out.println("authentication: " + authentication);
 
         // 가장 마지막 페이지의 번호
@@ -99,42 +94,15 @@ public class BoardController {
     }
 
     @GetMapping("write")
-    public String showWrite(HttpSession session) {
-        UserDTO logIn = (UserDTO) session.getAttribute("logIn");
-        if (logIn == null) {
-            return "redirect:/";
-        }
+    public String showWrite() {
 
         return "board/write";
     }
 
     @PostMapping("write")
-    public String write(HttpSession session, BoardDTO boardDTO, MultipartFile[] file) {
-        UserDTO logIn = (UserDTO) session.getAttribute("logIn");
-        if (logIn == null) {
-            return "redirect:/";
-        }
-
+    public String write(BoardDTO boardDTO, Authentication authentication) {
+        UserDTO logIn = (UserDTO) authentication.getPrincipal();
         boardDTO.setWriterId(logIn.getId());
-
-        String path = "c:\\uploads\\a\\bb\\cc";
-
-        File pathDir = new File(path);
-        if (!pathDir.exists()) {
-            pathDir.mkdirs();
-        }
-
-
-        try {
-            for (MultipartFile mf : file) {
-                File f = new File(path, mf.getOriginalFilename());
-                mf.transferTo(f);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
         boardService.insert(boardDTO);
 
         return "redirect:/board/showOne/" + boardDTO.getId();
